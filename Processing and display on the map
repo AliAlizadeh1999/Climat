@@ -1,0 +1,35 @@
+import xarray as xr
+import matplotlib.pyplot as plt
+
+# مسیر فایل
+file_path = r"file_path\tasmin_day_GFDL-ESM4_historical_r1i1p1f1_gr1_1985_v2.0.nc"
+
+# باز کردن فایل
+ds = xr.open_dataset(file_path)
+
+# بررسی متغیرها
+print("📗 Variables:", list(ds.data_vars))
+
+# انتخاب متغیر اصلی (tasmin) و تبدیل دما از K به °C
+da = ds["tasmin"] - 273.15
+da.attrs["units"] = "°C"
+
+# محدوده خاورمیانه
+da_me = da.sel(lat=slice(10, 45), lon=slice(30, 65))
+
+print("✅ داده انتخاب‌شده:")
+print(da_me)
+
+# انتخاب اولین زمان
+da_day = da_me.isel(time=0)
+
+# بررسی اینکه داده تهی نیست
+print("Min:", float(da_day.min()), "Max:", float(da_day.max()))
+
+# ترسیم نقشه
+plt.figure(figsize=(8,6))
+da_day.plot(cmap="coolwarm", cbar_kwargs={'label': 'Temperature (°C)'})
+plt.title("Minimum Temperature over the Middle East (First Time Step)")
+plt.xlabel("Longitude")
+plt.ylabel("Latitude")
+plt.show()
